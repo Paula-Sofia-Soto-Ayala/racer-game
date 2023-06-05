@@ -1,0 +1,80 @@
+type Racer
+- name string
+- speed float
+- position number
+- lane number
+- status (waiting, running, finished)
+
+type Race
+- race_start_timer number
+- current_lap number
+- lap_distance number
+- lanes number list
+- max_laps number
+- status (not_started, ongoing, complete)
+- racer list
+- top_three racer list
+
+type Server
+- address ip_address
+- client list
+- max_clients number
+- race
+
+type Client
+- address ip_address
+- id string
+- racer
+
+
+func start:
+  server = start_server()
+  race = server::race
+
+  start_race(race)
+  
+  # concurrent {
+    while race is ongoing:
+    display_race_status(race)
+    update_race_status(race)
+  }
+  
+  calculateTopThree(race)
+  displayPodiumRacers(race)
+
+  endGame(server)
+
+func start_server:
+- should create a localhost server
+- should initalize a race with its current lap set to 0 and a random number laps between 20-40 and its state set to not_started
+- will wait a max of race_start_timer for max_client_number of clients to connect
+- will assign a racer with random stats to each client that joined and save it to the racers list
+- if fewer clients than max_client_number joined it will fill the rest of the list with CPU racers, which have no client assigned
+- returns the server object
+
+func display_race_status(server):
+- Displays the formatted status of the race, including the current lap out of the max number of laps
+- Uses ASCII graphics and emojis to represent each racer
+- Includes each racer's current speed, lane, name, and position
+- Sends this formatted output to each client
+- Prints the race info on the server console
+
+func update_race_status(server):
+- A car should start the race (lap 1) with a speed of 0, then it should quickly, but randomly, accelerate to its max speed.
+- If a car detects another car on his lane that's slower it should try to overtake it by moving to another lane
+- It should update the speed, position, and current_lap for each racer
+- Should update the race's state, the race's current lap should match the car that's currently winning the race
+- If a racer's position after moving exceeds the lap_distance then it should move on to the next lap
+- If a racer gets to the end of the last lap then it should change its status to finished
+- Once all racers change their status to finished then the race should change its status to complete
+- The first three cars to reach the finished status should be saved to the top_three racers list
+- It should only update the state (speed, position, etc) of a racer if its state is running
+
+
+
+
+
+
+
+
+
